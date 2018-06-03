@@ -18,7 +18,7 @@ describe('Kibanator', function () {
         cy.visit('/')
 
         //start fetching
-        cy.get('[data-test-id="range-button-15 mins"]').click()
+        cy.get('[data-test-class="range-button"]').first().click()
 
         cy.get('[data-test-class="log-row"]')
             .should('has.length', 1)
@@ -59,7 +59,7 @@ describe('Kibanator', function () {
 
         cy.visit('/')
 
-        cy.get('[data-test-id="range-button-15 mins"]').click()
+        cy.get('[data-test-class="range-button"]').first().click()
 
         cy.contains('Error Internal Server Error')
         cy.get('[data-test-id="fetch-status"]').contains('fetching...')
