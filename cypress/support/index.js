@@ -15,17 +15,11 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
-
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
+import {aWatch, givenWatch} from '../fixtures/config'
 
 beforeEach(function () {
     //by default we assume the config has been specified already
-    localStorage.setItem('config', JSON.stringify({
-        index: 'index',
-        messageField: 'Message',
-        timeField: 'Timestamp'
-    }))
+    givenWatch(aWatch())
 
     cy.server()
 

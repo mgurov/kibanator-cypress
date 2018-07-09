@@ -1,9 +1,12 @@
+import {givenWatch, aWatch} from '../fixtures/config'
+import * as config from '../fixtures/config'
+import * as fetching from '../fixtures/fetching'
 
-describe('Kibanator', function () {
+describe('Fetching', function () {
 
     it('fetches rows', function () {
 
-        givenResponse({
+        fetching.givenResponse({
             hits: [
                 {
                     "_id": "ABC_1",
@@ -15,10 +18,7 @@ describe('Kibanator', function () {
             ]
         })
 
-        cy.visit('/')
-
-        //start fetching
-        cy.get('[data-test-class="range-button"]').first().click()
+        fetching.startFetchingFirstWatch()
 
         cy.get('[data-test-class="log-row"]')
             .should('has.length', 1)
@@ -26,7 +26,7 @@ describe('Kibanator', function () {
 
         cy.log('Next fetch yields same record + one new')
 
-        givenResponse({
+        fetching.givenResponse({
             hits: [
                 {
                     "_id": "ABC_1",
@@ -49,55 +49,96 @@ describe('Kibanator', function () {
             .should('have.length', 2)
             .should('contain', 'Hello 1')
             .should('contain', 'Hello 2')
+
+        cy.title().should('contain', '2 - ' + config.defaultWatch.serviceName)
     })
 
     it('shows error upon fetching, stops in panic upon 401', function () {
 
-        givenResponse({
+        fetching.givenResponse({
             status: 500,
         })
 
-        cy.visit('/')
-
-        cy.get('[data-test-class="range-button"]').first().click()
+        fetching.startFetchingFirstWatch()
 
         cy.contains('Error Internal Server Error')
         cy.get('[data-test-id="fetch-status"]').contains('fetching...')
 
         cy.log("yield panic after http 401")
-        
-        givenResponse({
+
+        fetching.givenResponse({
             status: 401,
         })
 
         cy.contains('Panic: response not authorized')
-       
+
         cy.get('[data-test-id="fetch-status"]').contains('stopped')
-        
+
     })
+
+
+    it('fetches per selected app', function () {
+
+        let serviceName1 = 'blah-service'
+        let serviceName2 = 'fooe-service'
+
+        givenWatch(
+            aWatch({serviceName: serviceName1, serviceField: '@fields.application'}),
+            aWatch({serviceName: serviceName2, serviceField: '@fields.application'}),
+        )
+
+        fetching.givenResponse({
+            hits: [
+                {
+                    "_id": "ABC_1",
+                    "_source": {
+                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
+                        "Message": "Hello 1"
+                    }
+                }
+            ]
+        }).as("fetch-default-app")
+
+        cy.visit('/watch/0')
+        fetching.startFetching()    
+
+        cy.wait('@fetch-default-app')
+            .then(function(xhr){
+                let requestBody = JSON.stringify(xhr.requestBody)
+                expect(requestBody).to.contain(serviceName1)
+              })
+
+        cy.root().contains('Hello 1')
+
+        cy.root().contains('DEV').click()
+
+        fetching.givenResponse({
+            hits: [
+                {
+                    "_id": "ABC_1",
+                    "_source": {
+                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
+                        "Message": "Hello 2"
+                    }
+                }
+            ]
+        }).as("fetch-second-app")
+
+        cy.root().contains(serviceName2).click()
+
+        fetching.startFetching()
+
+        cy.wait('@fetch-second-app')
+            .then(function(xhr){
+                let requestBody = JSON.stringify(xhr.requestBody)
+                expect(requestBody).to.contain(serviceName2)
+              })
+
+        cy.root().contains('Hello 2')
+
+
+    })
+
 })
 
-function givenResponse(paramsArg) {
 
-    let params = Object.assign({}, paramsArg)
-    if (params.hits) {
-        if (params.response) {
-            throw Error("Cannot have both response and hits in givenResponse")
-        }
-        params.response = {
-            hits: {
-                hits: params.hits
-            }
-        }
-        delete params.hits
-    }
-
-    cy.route(Object.assign({},
-        {
-            method: 'POST',
-            url: '/index/_search*',
-            status: 200,
-            response: "",
-        },
-        params))
-}
