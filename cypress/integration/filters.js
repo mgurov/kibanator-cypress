@@ -47,7 +47,7 @@ describe('Filters', function () {
 
         cy.contains('filter1')
 
-        //TODO: for later cy.contains('edit filters')
+        cy.contains('edit filters')
         
         fetching.givenResponse({
             hits: [
