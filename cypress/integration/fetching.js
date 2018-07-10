@@ -110,7 +110,7 @@ describe('Fetching', function () {
 
         cy.root().contains('Hello 1')
 
-        cy.root().contains('DEV').click()
+        cy.root().get('[data-test-id="home-page"]').click()
 
         fetching.givenResponse({
             hits: [
