@@ -83,7 +83,7 @@ describe('Config', function () {
 
         givenWatch(
             aWatch(
-                {serviceName: 'original'}
+                {serviceName: 'originaal'}
             ),
             aWatch(
                 {serviceName: 'not so much'}
