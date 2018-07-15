@@ -51,6 +51,14 @@ describe('Fetching', function () {
             .should('contain', 'Hello 2')
 
         cy.title().should('contain', '2 - ' + config.defaultWatch.serviceName)
+
+
+        cy.wrap('check no leak local storage').should(function() {
+
+            let migratedConfigString = localStorage.getItem('kibanator_config_v1')
+            expect(migratedConfigString).to.not.contain('Hello')
+        })
+
     })
 
     it('shows error upon fetching, stops in panic upon 401', function () {
