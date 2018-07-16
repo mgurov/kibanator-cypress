@@ -113,7 +113,7 @@ describe('Filters', function () {
 
     })
 
-    it.only('can be deleted via edit filters', function() {
+    it('can be deleted via edit filters', function() {
         givenWatch(
             aWatch({
                 "captors":[{"key":"filter 1","messageContains":"ABBA","type":"contains","field":null,"acknowledge":true}]
