@@ -112,4 +112,39 @@ describe('Filters', function () {
         //TODO: should also redirect the main view I guess.
 
     })
+
+    it.only('can be deleted via edit filters', function() {
+        givenWatch(
+            aWatch({
+                "captors":[{"key":"filter 1","messageContains":"ABBA","type":"contains","field":null,"acknowledge":true}]
+            })
+        )
+
+        fetching.givenResponse({
+            hits: [
+                {
+                    "_id": "ABC_1",
+                    "_source": {
+                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
+                        "Message": "Hello ABBA",
+                        "expanded": "extra value"
+                    }
+                },
+            ]
+        })
+
+        fetching.startFetchingFirstWatch()
+
+        cy.root().should('not.contain', 'ABBA')
+
+        cy.contains('edit filters').click()
+
+        cy.root().should('contain', 'filter 1')
+
+        cy.root().get('.rm-filter').click()
+
+        cy.root().should('not.contain', 'filter 1')
+
+        cy.root().should('contain', 'ABBA')
+    })
 })
