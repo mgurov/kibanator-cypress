@@ -155,6 +155,38 @@ describe('Fetching', function () {
 
 
     })
+    
+    it('regression - reset for second app', function () {
+
+        let serviceName1 = 'blah-service'
+        let serviceName2 = 'fooe-service'
+
+        givenWatch(
+            aWatch({serviceName: serviceName1, serviceField: '@fields.application'}),
+            aWatch({serviceName: serviceName2, serviceField: '@fields.application'}),
+        )
+
+        fetching.givenResponse({
+            hits: [
+                {
+                    "_id": "ABC_1",
+                    "_source": {
+                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
+                        "Message": "Hello 1"
+                    }
+                }
+            ]
+        }).as("fetch-default-app")
+
+        cy.visit('/watch/1')
+        fetching.startFetching()    
+
+        cy.wait('@fetch-default-app')
+
+        cy.get('[data-test-id="reset"]').click()
+
+
+    })
 
 })
 
