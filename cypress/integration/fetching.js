@@ -59,6 +59,11 @@ describe('Fetching', function () {
             expect(migratedConfigString).to.not.contain('Hello')
         })
 
+        cy.get('[data-test-id="reset"]')
+            .click()
+        
+        cy.title().should('equal', config.defaultWatch.serviceName)
+
     })
 
     it('shows error upon fetching, stops in panic upon 401', function () {
@@ -118,6 +123,8 @@ describe('Fetching', function () {
 
         cy.root().contains('Hello 1')
 
+        cy.title().should('contain', '1 - ' + serviceName1)
+
         cy.root().get('[data-test-id="home-page"]').click()
 
         fetching.givenResponse({
@@ -143,6 +150,8 @@ describe('Fetching', function () {
               })
 
         cy.root().contains('Hello 2')
+
+        cy.title().should('contain', '1 - ' + serviceName2)
 
 
     })
