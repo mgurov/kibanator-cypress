@@ -3,7 +3,7 @@ import * as fetching from '../fixtures/fetching'
 
 describe('Filters', function () {
 
-    it('add one', function () {
+    it.only('add one', function () {
 
         fetching.givenResponse({
             hits: [
@@ -38,6 +38,8 @@ describe('Filters', function () {
         cy.root().contains('extra value')
 
         cy.contains('Filter...').click()
+
+        cy.contains('Ack Matched (1)')
 
         cy.contains('Save as').click()
 
