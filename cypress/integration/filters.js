@@ -40,6 +40,8 @@ describe('Filters', function () {
         cy.contains('Filter...').click()
 
         cy.contains('Ack Matched (1)')
+        
+        cy.get('[data-test-class="log-row"]').contains('Hello ABBA')
 
         cy.contains('Save as').click()
 
