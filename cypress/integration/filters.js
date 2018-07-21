@@ -113,7 +113,7 @@ describe('Filters', function () {
 
         cy.root().should('not.contain', 'filter 1')
 
-        //TODO: should also redirect the main view I guess.
+        cy.root().should('contain', 'ABBA')
 
     })
 
