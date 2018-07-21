@@ -3,7 +3,7 @@ import * as fetching from '../fixtures/fetching'
 
 describe('Filters', function () {
 
-    it.only('add one', function () {
+    it('add one', function () {
 
         fetching.givenResponse({
             hits: [
