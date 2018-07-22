@@ -1,4 +1,5 @@
 import { aWatch, givenWatch } from '../fixtures/config'
+import _ from 'lodash'
 
 describe('Config', function () {
 
@@ -232,7 +233,8 @@ describe('Config', function () {
             .clear()
             .type(updatedServiceName)
 
-
+        let expectUpdatedConfiguration = _.cloneDeep(givenConfig)
+        expectUpdatedConfiguration.watches[0].serviceName = updatedServiceName
 
         cy.get('.btn-primary').click()
 
@@ -241,12 +243,10 @@ describe('Config', function () {
             let persistedConfig = localStorage.getItem('kibanator_config_v1')
             expect(persistedConfig).to.not.be.null
 
-            //nasty mutation
-            givenConfig.watches[0].serviceName = updatedServiceName
-
             let migratedConfig = JSON.parse(persistedConfig)
+
             expect(migratedConfig)
-                .to.deep.equal(givenConfig)
+                .to.deep.equal(expectUpdatedConfiguration)
         })
     })
 })
