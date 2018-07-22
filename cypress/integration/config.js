@@ -1,4 +1,4 @@
-import {aWatch, givenWatch} from '../fixtures/config'
+import { aWatch, givenWatch } from '../fixtures/config'
 
 describe('Config', function () {
 
@@ -16,12 +16,12 @@ describe('Config', function () {
             .should('have.value', 'yourAppHere')
             .clear()
             .type(serviceName)
-        
+
         cy.get('.btn-primary').click()
 
         cy.root().should('not.contain', 'Edit configuration')
 
-        cy.wrap('local storage config').should(function() {
+        cy.wrap('local storage config').should(function () {
             let config = JSON.parse(localStorage.getItem('kibanator_config_v1'))
             expect(config).to.have.property('watches')
             expect(config.watches[0]).to.have.property('serviceName', serviceName)
@@ -38,7 +38,7 @@ describe('Config', function () {
 
         givenWatch(
             aWatch(
-                {serviceName: 'original'}
+                { serviceName: 'original' }
             )
         )
 
@@ -59,9 +59,9 @@ describe('Config', function () {
         cy.get('.btn-primary').click()
 
         cy.root().should('not.contain', 'Edit configuration')
-        
+
     })
-    
+
     it('Can add one more app', function () {
 
         cy.visit('/')
@@ -83,10 +83,10 @@ describe('Config', function () {
 
         givenWatch(
             aWatch(
-                {serviceName: 'original'}
+                { serviceName: 'original' }
             ),
             aWatch(
-                {serviceName: 'not so much'}
+                { serviceName: 'not so much' }
             ),
         )
 
@@ -112,45 +112,142 @@ describe('Config', function () {
 
         cy.clearLocalStorage()
 
-        let serviceName = 'blah-service'
+        let givenLegacyConfig = {
+            "levelField": "Level",
+            "messageField": "Message",
+            "serviceName": "generic,specific",
+            "timeField": "Timestamp",
+            "serviceField": "Data.app",
+            "levelValue": "ERROR",
+            "captors": [
+                {
+                    "type": "contains",
+                    "field": null,
+                    "key": "4278",
+                    "acknowledge": true,
+                    "messageContains": "[Hello, world 4278"
+                },
+                {
+                    "type": "contains",
+                    "field": "Data.app",
+                    "acknowledge": false,
+                    "key": "generic-dash",
+                    "messageContains": "generic-dash"
+                },
+                {
+                    "messageContains": "do not match anything if old code 09a539c",
+                    "acknowledge": true,
+                    "key": "^generic$",
+                    "field": "Data.app",
+                    "regex": "^generic$",
+                    "type": "regex"
+                }
+            ],
+            "newState": {
+                "serviceName": "generic",
+                "messageField": "@message",
+                "serviceField": "@fields.application",
+                "timeField": "@timestamp",
+                "levelField": "@fields.level",
+                "watches": [],
+                "index": "mylog",
+                "levelValue": "ERROR"
+            },
+            "watches": [],
+            "index": "mylog",
+            "type": "SET_CONFIG"
+        }
 
         cy.wrap('set legacy config').then(
-            () => localStorage.setItem('config', JSON.stringify(aWatch({serviceName: serviceName})))
+            () => localStorage.setItem('config', JSON.stringify(givenLegacyConfig))
         )
 
         cy.visit('/')
 
         cy.root().should('not.contain', 'Edit configuration')
 
-        cy.wrap('check config migrated').should(function() {
+        cy.wrap('check config migrated').should(function () {
 
             let migratedConfigString = localStorage.getItem('kibanator_config_v1')
             expect(migratedConfigString).to.not.be.null
 
-            let migratedConfig =  JSON.parse(migratedConfigString)
+            let migratedConfig = JSON.parse(migratedConfigString)
             expect(migratedConfig)
                 .to.have.property('watches')
             expect(migratedConfig.watches).to.have.lengthOf(1)
-            expect(migratedConfig.watches[0]).to.have.property('serviceName', serviceName)
+            let convertedWatch = migratedConfig.watches[0]
+            expect(convertedWatch).to.have.property('serviceName', givenLegacyConfig.serviceName)
+            expect(convertedWatch).to.not.have.property('newState')
+            expect(convertedWatch).to.not.have.property('watches')
+            expect(convertedWatch).to.not.have.property('type')
         })
-        
+
     })
 
-    xit('cannot be edited when fetching', function () {
+    it('reading and saving v1 config', function () {
+
+
+        const givenConfig = {
+            "watches": [
+                {
+                    "serviceName": "generic,specific",
+                    "messageField": "Message",
+                    "captors": [
+                        {
+                            "messageContains": "[Hello, world 4278",
+                            "type": "contains",
+                            "field": null,
+                            "acknowledge": true,
+                            "key": "4278"
+                        }
+                    ],
+                    "id": "generic,specific",
+                    "index": "mylog",
+                    "serviceField": "Data.app",
+                    "levelField": "Level",
+                    "timeField": "Timestamp",
+                    "levelValue": "ERROR"
+                }
+            ]
+        }
+
+        cy.clearLocalStorage()
+
+        cy.wrap('set legacy config').then(
+            () => localStorage.setItem('kibanator_config_v1', JSON.stringify(givenConfig))
+        )
 
         cy.visit('/')
 
-        startFetching()
-
         cy.root().should('not.contain', 'Edit configuration')
-        cy.root().should('not.contain', 'Inspect configuration')
+
+        cy.contains(givenConfig.watches[0].serviceName).click()
 
         cy.get('[data-test-id=edit-config]').click()
 
-        cy.root().should('contain', 'Inspect configuration')
+        //change service name
+        const updatedServiceName = 'updated service name'
+        cy.get('#serviceName')
+            .should('have.value', givenConfig.watches[0].serviceName)
+            .clear()
+            .type(updatedServiceName)
 
-        cy.get('[data-test-id=save-config]').should('be.disabled')
-        
+
+
+        cy.get('.btn-primary').click()
+
+        cy.wrap('check config migrated').should(function () {
+
+            let persistedConfig = localStorage.getItem('kibanator_config_v1')
+            expect(persistedConfig).to.not.be.null
+
+            //nasty mutation
+            givenConfig.watches[0].serviceName = updatedServiceName
+
+            let migratedConfig = JSON.parse(persistedConfig)
+            expect(migratedConfig)
+                .to.deep.equal(givenConfig)
+        })
     })
 })
 
