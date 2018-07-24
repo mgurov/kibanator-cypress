@@ -1,31 +1,8 @@
 import {givenWatch, aWatch} from '../fixtures/config'
 import * as fetching from '../fixtures/fetching'
 
-function newHitsHolder() {
-    let id = 0;
-    let hitsSoFar = []
-    let moreHitsFun = (...hits) => {
-        let newHits = hits.map(h => {
-            id += 1
-            return {
-                "_id": id + "",
-                "_source": {
-                    "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                    "Message": h
-                }
-            }
-        })
-        hitsSoFar.push(...newHits)
-    }
-    moreHitsFun.response = function() {
-        return {hits: {hits : hitsSoFar}}
-    }
-
-    return moreHitsFun
-}
 
 const serviceName1 = 'blah-service'
-
 
 describe('Acking', function () {
 
@@ -35,13 +12,7 @@ describe('Acking', function () {
             aWatch({serviceName: serviceName1}),
         )
 
-        const moreHits = newHitsHolder()
-
-        moreHits("Hello 1", "Hello 2", "Hello 3")
-
-        fetching.givenResponse({
-            response: moreHits.response
-        })
+        fetching.givenResponse({response: fetching.hitsHolder("Hello 1", "Hello 2", "Hello 3")})
 
         cy.visit('/watch/0')
         fetching.startFetching()
@@ -70,13 +41,7 @@ describe('Acking', function () {
             aWatch({serviceName: serviceName1, serviceField: '@fields.application'}),
         )
 
-        const moreHits = newHitsHolder()
-
-        moreHits("Hello 1", "Hello 2", "Hello 3")
-
-        fetching.givenResponse({
-            response: moreHits.response
-        })
+        fetching.givenResponse({response: fetching.hitsHolder("Hello 1", "Hello 2", "Hello 3")})
 
         cy.visit('/watch/0')
         fetching.startFetching()
@@ -115,13 +80,7 @@ describe('Acking', function () {
         }),
         )
 
-        const moreHits = newHitsHolder()
-
-        moreHits("hello", "new world", "cruel", "old world")
-
-        fetching.givenResponse({
-            response: moreHits.response
-        })
+        fetching.givenResponse({response: fetching.hitsHolder("hello", "new world", "cruel", "old world")})
 
         cy.visit('/watch/0')
         fetching.startFetching()
@@ -148,13 +107,7 @@ describe('Acking', function () {
             aWatch({serviceName: serviceName1, serviceField: '@fields.application'}),
         )
 
-        const moreHits = newHitsHolder()
-
-        moreHits("hello", "new world", "cruel", "old world")
-
-        fetching.givenResponse({
-            response: moreHits.response
-        })
+        fetching.givenResponse({response: fetching.hitsHolder("hello", "new world", "cruel", "old world")})
 
         cy.visit('/watch/0')
         fetching.startFetching()

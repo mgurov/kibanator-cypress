@@ -5,24 +5,12 @@ describe('Filters', function () {
 
     it('add one', function () {
 
+        let hitsHolder = fetching.hitsHolder(
+            {"Message": "Hello ABBA", "expanded": "extra value"}, 
+            "Hello BORING"
+        )
         fetching.givenResponse({
-            hits: [
-                {
-                    "_id": "ABC_1",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                        "Message": "Hello ABBA",
-                        "expanded": "extra value"
-                    }
-                },
-                {
-                    "_id": "ABC_2",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                        "Message": "Hello BORING"
-                    }
-                },
-            ]
+            response: hitsHolder
         })
 
         fetching.startFetchingFirstWatch()
@@ -53,25 +41,8 @@ describe('Filters', function () {
 
         cy.contains('edit filters')
         
-        fetching.givenResponse({
-            hits: [
-                {
-                    "_id": "ABC_1_1",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                        "Message": "Hello ABBA 2",
-                        "expanded": "extra value"
-                    }
-                },
-                {
-                    "_id": "ABC_2_2",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                        "Message": "Hello BORING 2"
-                    }
-                },
-            ]
-        })
+        hitsHolder.add("Hello ABBA 2", 
+        "Hello BORING 2")
 
         cy.root().should('contain','Hello BORING 2')
                 .should('not.contain', 'Hello ABBA')
@@ -88,18 +59,7 @@ describe('Filters', function () {
             })
         )
 
-        fetching.givenResponse({
-            hits: [
-                {
-                    "_id": "ABC_1",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                        "Message": "Hello ABBA",
-                        "expanded": "extra value"
-                    }
-                },
-            ]
-        })
+        fetching.givenResponse({response: fetching.hitsHolder("Hello ABBA")})
 
         fetching.startFetchingFirstWatch()
 
@@ -124,18 +84,7 @@ describe('Filters', function () {
             })
         )
 
-        fetching.givenResponse({
-            hits: [
-                {
-                    "_id": "ABC_1",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                        "Message": "Hello ABBA",
-                        "expanded": "extra value"
-                    }
-                },
-            ]
-        })
+        fetching.givenResponse({response: fetching.hitsHolder("Hello ABBA")})
 
         fetching.startFetchingFirstWatch()
 

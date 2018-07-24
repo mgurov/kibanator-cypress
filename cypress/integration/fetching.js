@@ -6,17 +6,11 @@ describe('Fetching', function () {
 
     it('fetches rows', function () {
 
-        fetching.givenResponse({
-            hits: [
-                {
-                    "_id": "ABC_1",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                        "Message": "Hello 1"
-                    }
-                }
-            ]
-        })
+        let hitsHolder = fetching.hitsHolder("Hello 1") 
+
+        fetching.givenResponse(
+            {response: hitsHolder}
+        )
 
         fetching.startFetchingFirstWatch()
 
@@ -24,26 +18,7 @@ describe('Fetching', function () {
             .should('has.length', 1)
             .should('contain', 'Hello 1')
 
-        cy.log('Next fetch yields same record + one new')
-
-        fetching.givenResponse({
-            hits: [
-                {
-                    "_id": "ABC_1",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                        "Message": "Hello 1"
-                    }
-                },
-                {
-                    "_id": "ABC_2",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:05.9725233Z",
-                        "Message": "Hello 2"
-                    }
-                }
-            ]
-        })
+        hitsHolder.add("Hello 2")
 
         cy.get('[data-test-class="log-row"]')
             .should('have.length', 2)
@@ -100,17 +75,8 @@ describe('Fetching', function () {
             aWatch({serviceName: serviceName2, serviceField: '@fields.application'}),
         )
 
-        fetching.givenResponse({
-            hits: [
-                {
-                    "_id": "ABC_1",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                        "Message": "Hello 1"
-                    }
-                }
-            ]
-        }).as("fetch-default-app")
+        fetching.givenResponse({response: fetching.hitsHolder("Hello 1")})
+            .as("fetch-default-app")
 
         cy.visit('/watch/0')
         fetching.startFetching()    
@@ -127,17 +93,8 @@ describe('Fetching', function () {
 
         cy.root().get('[data-test-id="home-page"]').click()
 
-        fetching.givenResponse({
-            hits: [
-                {
-                    "_id": "ABC_1",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                        "Message": "Hello 2"
-                    }
-                }
-            ]
-        }).as("fetch-second-app")
+        fetching.givenResponse({response: fetching.hitsHolder("Hello 2")})
+            .as("fetch-second-app")
 
         cy.root().contains(serviceName2).click()
 
@@ -166,18 +123,9 @@ describe('Fetching', function () {
             aWatch({serviceName: serviceName2, serviceField: '@fields.application'}),
         )
 
-        fetching.givenResponse({
-            hits: [
-                {
-                    "_id": "ABC_1",
-                    "_source": {
-                        "Timestamp": "2018-06-03T09:09:04.9725233Z",
-                        "Message": "Hello 1"
-                    }
-                }
-            ]
-        }).as("fetch-default-app")
-
+        fetching.givenResponse({response: fetching.hitsHolder("Hello 2")})
+            .as("fetch-default-app")
+        
         cy.visit('/watch/1')
         fetching.startFetching()    
 
@@ -185,6 +133,7 @@ describe('Fetching', function () {
 
         cy.get('[data-test-id="reset"]').click()
 
+        cy.title().should('equal', serviceName2)
 
     })
 
