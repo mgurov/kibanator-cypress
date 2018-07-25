@@ -125,6 +125,39 @@ describe('Acking', function () {
 
         cy.title().should('equal', serviceName1)
     })
+
+    it('ack selection', function () {
+
+        let hitsHolder = fetching.hitsHolder(
+            "Hello Boring",
+            "Hello Shmoring",
+            "Hello Boring 2",
+        )
+        fetching.givenResponse({
+            response: hitsHolder
+        })
+
+        fetching.startFetchingFirstWatch()
+
+        cy.get('[data-test-class="log-row"]').first()
+            .contains('Hello Boring')
+
+        cy.get('[data-test-class="log-row"] [data-test-class="row-expand-collapse"]').first()
+            .click()
+
+        cy.contains('Filter...').click()
+
+        cy.contains('Ack Matched (2)')
+            .click()
+
+        cy.root().contains("Hello Shmoring")
+        cy.root().should("not.contain", "Hello Boring")
+                
+        hitsHolder.add("Hello Boring 3")
+
+        cy.root().should('contain','Hello Boring 3')
+    })
+
     
 
 })
