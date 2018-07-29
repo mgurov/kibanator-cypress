@@ -63,7 +63,7 @@ describe('Fetching', function () {
     })
 
 
-    it('fetches per selected app', function () {
+    it.only('fetches per selected app', function () {
 
         let serviceName1 = 'blah-service'
         let serviceName2 = 'fooe-service'
@@ -95,6 +95,11 @@ describe('Fetching', function () {
             .as("fetch-second-app")
 
         cy.root().contains(serviceName2).click()
+
+        cy.contains('Other watches are being fetched')
+              .parent('div')
+              .find('[data-test-id="reset"]')
+              .click()
 
         fetching.startFetching()
 
