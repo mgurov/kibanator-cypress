@@ -63,7 +63,7 @@ describe('Fetching', function () {
     })
 
 
-    it.only('fetches per selected app', function () {
+    it('fetches per selected app', function () {
 
         let serviceName1 = 'blah-service'
         let serviceName2 = 'fooe-service'
