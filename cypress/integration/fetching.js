@@ -1,4 +1,4 @@
-import {givenWatch, aWatch} from '../fixtures/config'
+import {givenWatch, aWatch, thenConfigPersisted} from '../fixtures/config'
 import * as config from '../fixtures/config'
 import * as fetching from '../fixtures/fetching'
 
@@ -28,10 +28,8 @@ describe('Fetching', function () {
         cy.title().should('contain', '2 - ' + config.defaultWatch.serviceName)
 
 
-        cy.wrap('check no leak local storage').should(function() {
-
-            let migratedConfigString = localStorage.getItem('kibanator_config_v1')
-            expect(migratedConfigString).to.not.contain('Hello')
+        thenConfigPersisted(persistedConfig => {
+            expect(JSON.stringify(persistedConfig)).to.not.contain('Hello')
         })
 
         cy.get('[data-test-id="reset"]')

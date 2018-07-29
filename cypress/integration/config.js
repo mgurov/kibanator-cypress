@@ -166,12 +166,7 @@ describe('Config', function () {
 
         cy.root().should('not.contain', 'Edit configuration')
 
-        cy.wrap('check config migrated').should(function () {
-
-            let migratedConfigString = localStorage.getItem('kibanator_config_v1')
-            expect(migratedConfigString).to.not.be.null
-
-            let migratedConfig = JSON.parse(migratedConfigString)
+        thenConfigPersisted(migratedConfig => {
             expect(migratedConfig)
                 .to.have.property('watches')
             expect(migratedConfig.watches).to.have.lengthOf(1)
@@ -237,13 +232,7 @@ describe('Config', function () {
 
         cy.get('.btn-primary').click()
 
-        cy.wrap('check config migrated').should(function () {
-
-            let persistedConfig = localStorage.getItem('kibanator_config_v1')
-            expect(persistedConfig).to.not.be.null
-
-            let migratedConfig = JSON.parse(persistedConfig)
-
+        thenConfigPersisted(migratedConfig => {
             expect(migratedConfig)
                 .to.deep.equal(expectUpdatedConfiguration)
         })
