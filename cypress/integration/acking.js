@@ -158,8 +158,6 @@ describe('Acking', function () {
         cy.root().should('contain','Hello Boring 3')
     })
 
-    
-
 })
 
 

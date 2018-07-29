@@ -1,4 +1,4 @@
-import { aWatch, givenWatch } from '../fixtures/config'
+import { aWatch, givenWatch, thenConfigPersisted } from '../fixtures/config'
 import _ from 'lodash'
 
 describe('Config', function () {
@@ -22,10 +22,9 @@ describe('Config', function () {
 
         cy.root().should('not.contain', 'Edit configuration')
 
-        cy.wrap('local storage config').should(function () {
-            let config = JSON.parse(localStorage.getItem('kibanator_config_v1'))
-            expect(config).to.have.property('watches')
-            expect(config.watches[0]).to.have.property('serviceName', serviceName)
+        thenConfigPersisted(persistedConfig => {
+            expect(persistedConfig).to.have.property('watches')
+            expect(persistedConfig.watches[0]).to.have.property('serviceName', serviceName)
         })
 
         cy.root().contains(serviceName).click()

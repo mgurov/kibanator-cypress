@@ -28,5 +28,18 @@ export function givenConfig(config) {
     })
 }
 
+export function thenConfigPersisted(assertion) {
+    cy.wrap('check config updated').should(function () {
+
+        let persistedConfigString = localStorage.getItem('kibanator_config_v1')
+        expect(persistedConfigString).to.not.be.null
+
+        let persistedConfig = JSON.parse(persistedConfigString)
+
+        assertion(persistedConfig)
+    })
+
+}
+
 
 export const kibanator_config_v1 = 'kibanator_config_v1'

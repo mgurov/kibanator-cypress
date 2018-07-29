@@ -1,4 +1,4 @@
-import {givenWatch, aWatch} from '../fixtures/config'
+import {givenWatch, aWatch, thenConfigPersisted} from '../fixtures/config'
 import * as fetching from '../fixtures/fetching'
 
 describe('Filters', function () {
@@ -51,6 +51,53 @@ describe('Filters', function () {
         cy.root().should('contain', 'Hello ABBA')
 
     })
+
+    it('filter by this field', function () {
+
+        let hitsHolder = fetching.hitsHolder(
+            {"Message": "Hello Boring a", "expanded": "xp a"},
+            {"Message": "Hello Shmorning", "expanded": "xp b"},
+            {"Message": "Hello Boring b", "expanded": "xp a"},
+            {"Message": "Hello Boring c"},
+        )
+
+        fetching.givenResponse({
+            response: hitsHolder
+        })
+
+        fetching.startFetchingFirstWatch()
+
+        cy.get('[data-test-class="log-row"]').first().within( () => {
+            cy.contains("Hello Boring a")
+            cy.get('[data-test-class="row-expand-collapse"]').click()
+            cy.contains("expanded")
+                .parent('.field-row')
+                .find('.filter-like-this-button')
+                .click()
+
+        })
+
+        cy.contains('Ack Matched (2)')
+        cy.contains('Save as').click()
+        cy.contains('OK, save this').click()
+
+        cy.root().should("not.contain", "Hello Boring a")
+        cy.root().should("contain", "Hello Shmorning")
+        cy.root().should("not.contain", "Hello Boring b")
+        cy.root().should("contain", "Hello Boring c")
+
+        thenConfigPersisted(persistedConfig => {
+            expect(persistedConfig.watches[0].captors[0])
+                .to.include(
+                    {
+                        field: "expanded",
+                        messageContains: "xp a",
+                    }
+                )            
+        })
+                
+    })  
+
 
     it('can be deleted', function() {
         givenWatch(
