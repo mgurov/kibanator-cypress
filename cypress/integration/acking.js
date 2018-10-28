@@ -24,7 +24,7 @@ describe('Acking', function () {
 
         cy.root()
             .contains('Hello 2')
-            .parent('[data-test-class="log-row"]')
+            .parents('[data-test-class="log-row"]')
             .find('.ack-button')
             .click()
 
@@ -53,7 +53,7 @@ describe('Acking', function () {
 
         cy.root()
             .contains('Hello 2')
-            .parent('[data-test-class="log-row"]')
+            .parents('[data-test-class="log-row"]')
             .find('.ack-button')
             .as('ack-2')
 
@@ -89,7 +89,7 @@ describe('Acking', function () {
 
         cy.root()
             .contains('new world')
-            .parent('[data-test-class="log-row"]')
+            .parents('[data-test-class="log-row"]')
             .find('.ack-tag')
             .click()
 
